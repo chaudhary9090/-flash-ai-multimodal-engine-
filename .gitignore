@@ -1,0 +1,43 @@
+# Environment & Secrets
+.env
+.env.local
+*.env
+
+# Python & Virtual Environments
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+ENV/
+
+# Node & Frontend Build (if any)
+node_modules/
+dist/
+build/
+
+# Model Checkpoints & Large Binaries
+*.pt
+*.pth
+*.bin
+*.onnx
+
+# Vector Database Index Storage
+vector_store/
+faiss_index/
+chroma_db/
+
+# Scratch & Temporary User Artifacts
+scratch/
+*.log
+
+# IDE & OS Files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Testing & Coverage
+.pytest_cache/
+.coverage
+htmlcov/

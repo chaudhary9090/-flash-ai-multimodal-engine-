@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FLASH AI — Multimodal Agentic Intelligence Engine</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0b0c10;
+            --bg-sidebar: #12141c;
+            --bg-card: #1a1d28;
+            --bg-chat-user: #171924;
+            --bg-chat-gpt: #121420;
+            --bg-input: #1b1e2b;
+            --accent-flash: #f97316;
+            --accent-glow: rgba(249, 115, 22, 0.4);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-subtle: rgba(255, 255, 255, 0.08);
+            --border-glow: rgba(249, 115, 22, 0.35);
+            --radius-lg: 16px;
+            --radius-md: 10px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Outfit', -apple-system, sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            height: 100vh;
+            display: flex;
+            overflow: hidden;
+        }
+
+        #drop-zone {
+            position: absolute;
+            inset: 0;
+            background: rgba(11, 12, 16, 0.92);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 3px dashed var(--accent-flash);
+            gap: 16px;
+        }
+
+        #drop-zone.active { display: flex; }
+
+        .sidebar {
+            width: 280px;
+            background: var(--bg-sidebar);
+            border-right: 1px solid var(--border-subtle);
+            display: flex;
+            flex-direction: column;
+            padding: 16px;
+            gap: 16px;
+            z-index: 10;
+        }
+
+        .brand-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .brand-logo-img {
+            width: 42px;
+            height: 42px;
+            border-radius: 10px;
+            object-fit: cover;
+            box-shadow: 0 0 16px var(--accent-glow);
+            border: 1px solid var(--border-glow);
+        }
+
+        .brand-title {
+            font-weight: 800;
+            font-size: 20px;
+            background: linear-gradient(135deg, #ffffff, #f97316);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .new-chat-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            padding: 12px;
+            border-radius: var(--radius-md);
+            background: linear-gradient(135deg, rgba(249, 115, 22, 0.18), rgba(59, 130, 246, 0.15));
+            border: 1px solid var(--border-glow);
+            color: var(--text-main);
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .nav-section-title {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+        }
+
+        .feature-pills {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .feature-pill {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 9px 12px;
+            background: var(--bg-card);
+            border-radius: 8px;
+            font-size: 13px;
+            color: var(--text-muted);
+            border: 1px solid var(--border-subtle);
+        }
+
+        .feature-pill svg { width: 16px; height: 16px; flex-shrink: 0; }
+
+        .main-canvas {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: var(--bg-dark);
+        }
+
+        .top-navbar {
+            height: 64px;
+            padding: 0 24px;
+            border-bottom: 1px solid var(--border-subtle);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(11, 12, 16, 0.85);
+            backdrop-filter: blur(12px);
+        }
+
+        .engine-select-box {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        select.engine-dropdown {
+            background: var(--bg-card);
+            color: var(--text-main);
+            border: 1px solid var(--border-glow);
+            padding: 8px 14px;
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 13.5px;
+            font-weight: 600;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .status-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 14px;
+            border-radius: 20px;
+            background: rgba(249, 115, 22, 0.12);
+            border: 1px solid var(--accent-flash);
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--accent-flash);
+        }
+
+        .pulse-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--accent-flash);
+            box-shadow: 0 0 10px var(--accent-flash);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.3); opacity: 0.6; } }
+
+        .chat-viewport {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-row {
+            display: flex;
+            justify-content: center;
+            padding: 24px;
+        }
+
+        .chat-row.user { background: var(--bg-chat-user); }
+        .chat-row.assistant { background: var(--bg-chat-gpt); border-top: 1px solid var(--border-subtle); border-bottom: 1px solid var(--border-subtle); }
+
+        .chat-content-container {
+            max-width: 840px;
+            width: 100%;
+            display: flex;
+            gap: 20px;
+        }
+
+        .avatar-box {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        .avatar-box.user { background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; }
+        .avatar-box.assistant { background: linear-gradient(135deg, var(--accent-flash), #ea580c); color: white; }
+
+        .message-body {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        /* Reasoning Trace Accordion */
+        .trace-accordion {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-subtle);
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .trace-title {
+            font-weight: 700;
+            color: var(--accent-flash);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .trace-list {
+            margin-top: 6px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            padding-left: 12px;
+        }
+
+        .formatted-text {
+            font-size: 15.5px;
+            line-height: 1.65;
+            color: var(--text-main);
+            white-space: pre-wrap;
+        }
+
+        .input-dock {
+            padding: 20px 24px 28px;
+            display: flex;
+            justify-content: center;
+            background: linear-gradient(180deg, transparent 0%, var(--bg-dark) 40%);
+        }
+
+        .input-shell {
+            max-width: 840px;
+            width: 100%;
+            background: var(--bg-input);
+            border: 1px solid var(--border-subtle);
+            border-radius: 16px;
+            padding: 8px 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .input-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .action-btn {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        textarea {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: var(--text-main);
+            font-family: inherit;
+            font-size: 15.5px;
+            resize: none;
+            max-height: 180px;
+            min-height: 48px;
+            padding: 12px 0;
+        }
+
+        .send-trigger {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            background: var(--accent-flash);
+            border: none;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="drop-zone">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#f97316" stroke-width="2">
+            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
+        </svg>
+        <h2>Drop files here for FLASH Knowledge Processing</h2>
+    </div>
+
+    <input type="file" id="file-input" style="display: none;" onchange="handleFileUpload(event)">
+
+    <div class="sidebar">
+        <div class="brand-header">
+            <img src="logo.jpg" alt="FLASH Logo" class="brand-logo-img">
+            <div>
+                <div class="brand-title">FLASH</div>
+                <div style="font-size: 11px; color: var(--text-muted);">Multimodal Intelligence</div>
+            </div>
+        </div>
+
+        <button class="new-chat-btn" onclick="resetChat()">+ New Session</button>
+
+        <div class="nav-section-title">Capabilities & Tools</div>
+        <div class="feature-pills">
+            <div class="feature-pill"><span>⚡ Unified Agent Routing</span></div>
+            <div class="feature-pill"><span>🔍 RAG Vector Search</span></div>
+            <div class="feature-pill"><span>🖼️ BLIP Vision + OCR</span></div>
+            <div class="feature-pill"><span>🐍 Sandboxed Python Exec</span></div>
+            <div class="feature-pill"><span>📡 SSE Token Streaming</span></div>
+        </div>
+    </div>
+
+    <div class="main-canvas">
+        <div class="top-navbar">
+            <div class="engine-select-box">
+                <span style="font-size: 13px; font-weight: 700; color: var(--text-muted);">Core Brain:</span>
+                <select id="engine-selector" class="engine-dropdown">
+                    <option value="flash_reasoning">⚡ FLASH Reasoning Engine (Instruction Model)</option>
+                    <option value="custom_pytorch_gpt">🧠 Custom PyTorch GPT (From Scratch)</option>
+                </select>
+            </div>
+            <div class="status-badge">
+                <div class="pulse-dot"></div>
+                FLASH Engine Active (Port 8140)
+            </div>
+        </div>
+
+        <div class="chat-viewport" id="chat-messages"></div>
+
+        <div class="input-dock">
+            <div class="input-shell">
+                <div class="input-row">
+                    <button class="action-btn" title="Upload File" onclick="document.getElementById('file-input').click()">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/>
+                        </svg>
+                    </button>
+                    <textarea id="prompt-input" placeholder="Ask FLASH anything, run Python code, query files, or calculate math..." rows="1" onkeydown="handleKeyPress(event)"></textarea>
+                    <button class="send-trigger" id="send-btn" onclick="sendStreamingMessage()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <line x1="22" y1="2" x2="11" y2="13"></line>
+                            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const BASE_HOST = "http://127.0.0.1:8140/api/v1";
+        const STREAM_URL = `${BASE_HOST}/chat/stream`;
+        const UPLOAD_URL = `${BASE_HOST}/upload`;
+        const VISION_URL = `${BASE_HOST}/vision/analyze`;
+
+        // Client-side persistent session_id
+        let sessionId = localStorage.getItem("flash_session_id");
+        if (!sessionId) {
+            sessionId = "sess_" + Math.random().toString(36).substring(2, 10);
+            localStorage.setItem("flash_session_id", sessionId);
+        }
+
+        const messagesContainer = document.getElementById("chat-messages");
+        const promptInput = document.getElementById("prompt-input");
+        const sendBtn = document.getElementById("send-btn");
+        const engineSelector = document.getElementById("engine-selector");
+
+        function handleKeyPress(e) {
+            if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                sendStreamingMessage();
+            }
+        }
+
+        function appendUserMessage(text) {
+            const rowDiv = document.createElement("div");
+            rowDiv.className = "chat-row user";
+            rowDiv.innerHTML = `
+                <div class="chat-content-container">
+                    <div class="avatar-box user">U</div>
+                    <div class="message-body">
+                        <div class="formatted-text">${text}</div>
+                    </div>
+                </div>`;
+            messagesContainer.appendChild(rowDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        function createAssistantRow() {
+            const rowDiv = document.createElement("div");
+            rowDiv.className = "chat-row assistant";
+            
+            const containerDiv = document.createElement("div");
+            containerDiv.className = "chat-content-container";
+            
+            const avatarDiv = document.createElement("div");
+            avatarDiv.className = "avatar-box assistant";
+            avatarDiv.textContent = "⚡";
+
+            const bodyDiv = document.createElement("div");
+            bodyDiv.className = "message-body";
+
+            const traceDiv = document.createElement("div");
+            traceDiv.className = "trace-accordion";
+            traceDiv.style.display = "none";
+
+            const textDiv = document.createElement("div");
+            textDiv.className = "formatted-text";
+
+            bodyDiv.appendChild(traceDiv);
+            bodyDiv.appendChild(textDiv);
+            containerDiv.appendChild(avatarDiv);
+            containerDiv.appendChild(bodyDiv);
+            rowDiv.appendChild(containerDiv);
+            messagesContainer.appendChild(rowDiv);
+
+            return { rowDiv, traceDiv, textDiv };
+        }
+
+        async function sendStreamingMessage() {
+            const prompt = promptInput.value.trim();
+            if (!prompt) return;
+
+            const selectedEngine = engineSelector.value;
+            promptInput.value = "";
+            sendBtn.disabled = true;
+
+            appendUserMessage(prompt);
+            const { traceDiv, textDiv } = createAssistantRow();
+
+            try {
+                const response = await fetch(STREAM_URL, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        prompt: prompt,
+                        engine_mode: selectedEngine,
+                        session_id: sessionId
+                    })
+                });
+
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder("utf-8");
+                let buffer = "";
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+                    
+                    buffer += decoder.decode(value, { stream: true });
+                    const lines = buffer.split("\n\n");
+                    buffer = lines.pop(); // Keep partial line
+
+                    for (const line of lines) {
+                        if (!line.trim()) continue;
+                        
+                        const eventMatch = line.match(/^event:\s*(.+)$/m);
+                        const dataMatch = line.match(/^data:\s*(.+)$/m);
+
+                        if (eventMatch && dataMatch) {
+                            const eventType = eventMatch[1].trim();
+                            const dataObj = JSON.parse(dataMatch[1].trim());
+
+                            if (eventType === "trace") {
+                                if (dataObj.trace && dataObj.trace.length > 0) {
+                                    traceDiv.style.display = "block";
+                                    traceDiv.innerHTML = `
+                                        <div class="trace-title">🔍 Agent Reasoning Trace (${dataObj.trace.length} step${dataObj.trace.length > 1 ? 's' : ''})</div>
+                                        <div class="trace-list">${dataObj.trace.map(t => `<div>• ${t}</div>`).join('')}</div>`;
+                                }
+                            } else if (eventType === "token") {
+                                textDiv.textContent += dataObj.token;
+                                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                            }
+                        }
+                    }
+                }
+
+            } catch (error) {
+                console.error("Streaming error:", error);
+                textDiv.textContent = "⚠️ Connection error to FLASH SSE endpoint.";
+            } finally {
+                sendBtn.disabled = false;
+            }
+        }
+
+        async function handleFileUpload(event) {
+            if (event.target.files.length === 0) return;
+            const file = event.target.files[0];
+            const ext = file.name.split('.').pop().toLowerCase();
+            const formData = new FormData();
+            formData.append("file", file);
+
+            sendBtn.disabled = true;
+            appendUserMessage(`📎 Uploading file: ${file.name}`);
+            const { textDiv } = createAssistantRow();
+
+            try {
+                const targetUrl = ["jpg", "png", "webp"].includes(ext) ? VISION_URL : UPLOAD_URL;
+                const res = await fetch(targetUrl, { method: "POST", body: formData });
+                const data = await res.json();
+                textDiv.textContent = data.analysis || data.summary;
+            } catch (err) {
+                textDiv.textContent = `⚠️ File upload error: ${err.message}`;
+            } finally {
+                sendBtn.disabled = false;
+            }
+        }
+
+        function resetChat() {
+            messagesContainer.innerHTML = "";
+            sessionId = "sess_" + Math.random().toString(36).substring(2, 10);
+            localStorage.setItem("flash_session_id", sessionId);
+        }
+    </script>
+</body>
+</html>
